@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+
+{% block head %}
+    <link rel="stylesheet" href="{{url_for('static', filename = 'css/homepage.css')}}" />
+    <script type="text/javascript" src="{{ url_for('static', filename = 'js/homepage.js') }}"></script>
+{% endblock %}
+
+{% block body %}
+<div class='title_container'>
+    <p class='title'>Realtime tick by tick data from crypto exchange</p>
+</div>
+<div class='subscribe-form'>
+    <form class='realtime_request' method='post' target="_blank">
+        <div id='exchange_1_block'>
+                <div class='exchange_text'>Exchange 1</div>
+                <div class='param'> 
+                    <label for='exchange_1'>Exchange:</label>
+                    <select name='exchange_1' id='exchange_1'>
+                        <option value="Coinbase">Coinbase</option>
+                        <option value="Bybit">Bybit</option>
+                        <option value="Gemini">Gemini</option>
+                        <option value="Okx">Okx</option>
+                        <option value="Kraken">Kraken</option>
+                        <option value="None">None</option>
+                    </select>
+                </div>
+                <div class='param'>
+                    <label for='ccy_pair_1'>Currency Pair:</label>
+                    <select name='ccy_pair_1' id='ccy_pair_1'>
+                        <option value='BTCUSD'>BTCUSD</option>
+                        <option value='ETHUSD'>ETHUSD</option>
+                        <option value='SOLUSD'>SOLUSD</option>
+                        <option value='LTCUSD'>LTCUSD</option>
+                        <option value='BCHUSD'>BCHUSD</option>
+                    </select>
+                </div>
+        </div>
+        <div id='exchange_2_block'>
+            <div class='exchange_text'>Exchange 2</div>
+            <div class='param'>
+                <label for='exchange_2'>Exchange:</label>
+                <select name='exchange_2' id='exchange_2'>
+                    <option value="Coinbase">Coinbase</option>
+                    <option value="Bybit">Bybit</option>
+                    <option value="Okx">Okx</option>
+                    <option value="None">None</option>
+                    <option value="Gemini">Gemini</option>
+                    <option value="Kraken">Kraken</option>
+                </select>
+            </div>
+            <div class='param'>
+                <label for='ccy_pair_2'>Currency Pair:</label>
+                <select name='ccy_pair_2' id='ccy_pair_2'>
+                    <option value='ETHUSD'>ETHUSD</option>
+                    <option value='BTCUSD'>BTCUSD</option>
+                    <option value='None'>None</option>
+                    <option value='BTCUSDC'>BTCUSDC</option>
+                    <option value='LTCUSD'>LTCUSD</option>
+                    <option value='SOLUSD'>SOLUSD</option>
+                    <option value='BCHUSD'>BCHUSD</option>
+                </select>
+            </div>
+        </div>
+        <input type='submit' name='submit'  value='Submit' />
+    </form>
+
+</div>
+{% endblock %}

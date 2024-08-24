@@ -1,0 +1,158 @@
+body {
+    margin: 0;
+    font-family: sans-serif;
+}
+
+.header {  
+    height: 45px;
+    padding: 5px;
+    border: 1px solid black;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: black;
+}
+.visual_crypto {
+    margin-left: 20px;
+    font-size: 20px;
+    font-weight: 700;
+    color: white;
+}
+
+.navbar {
+    margin-right: 40px;
+}
+.navbar a {
+    font-size:15px;
+    font-weight: 500;
+    color: white;
+    text-decoration: none;
+    margin-left: 40px;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.navbar a:hover {
+    background-color: #a0a0a0;
+}
+
+.active {
+    background-color: #a0a0a0;
+}
+
+
+.subscribe-form {
+    width: 400px;
+    margin: auto;
+    margin-top: 10px;
+    border: 1px solid black;
+    border-radius: 5px;
+    padding: 10px 20px 0px 20px;
+
+}
+
+.param {
+    margin-bottom: 10px;
+    padding: 0px 5px 0px 5px;
+    height: 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.test {
+    border: 1px solid black;
+    border-radius: 5px;
+}
+
+#exchange_1_block, #exchange_2_block {
+    margin: 20px 0px 20px 0px;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    background-color: #e6faea    ;
+    padding: 0px 5px 0px 5px;
+}
+
+.exchange_text {
+    font-size: 18px;
+    padding: 5px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+label {
+    font-size: 18px;    
+}
+input[type=text] {
+    width: 200px;
+    height: 22px;
+    font-size: 14px;
+}
+
+select {
+    width: 230px;
+    height: 25px;
+    font-size: 14px;
+}
+input[type=datetime-local] {
+    width: 230px;
+    height: 25px;
+    font-size: 14px;
+}
+
+input[type=submit] {
+    display: block;
+    box-sizing: border-box;
+    width: 100%;
+    margin: 25px 0;
+    padding: 5px;
+}
+
+
+
+
+.slideContainer {
+    width: 350px;
+    margin: auto;
+    margin-top: 50px;
+    border-radius: 5px;
+    padding: 10px 20px 0px 20px;
+}
+.slider{
+    width: 100%;
+}
+
+.arrow{
+    position: relative;
+    background-color: #8bbaef;
+    height: 35px;
+    width: 35px;
+    border-radius: 50%;
+    transition: 0.5s ease;
+    
+}
+
+.arrow div {
+    position: absolute;
+    height:15px;
+    width:15px;
+    border-top: 5px solid black;
+    border-left: 5px solid black;
+    transform: rotate(45deg);
+    left: 6.5px;
+    top: 10px;
+}
+
+.arrow:hover {
+    box-shadow: 0px 0px 5px 5px #d8e8f9;
+}
+
+.left {
+    transform: rotate(-90deg);
+}
+
+.right {
+    transform: rotate(90deg);
+}

@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+
+{% block head %}
+    <link rel='stylesheet' href='{{url_for('static', filename = 'css/historical.css')}}' />
+    <script type='text/javascript' src='{{ url_for('static', filename = 'js/historical.js') }}'></script>
+    <script type="text/javascript">
+        var api_url = "{{ api_url }}";
+    </script>
+{% endblock %}
+
+{% block body %}
+<div class='subscribe-form'>
+    <form class='historical_request' method='post' target="_blank">
+        <div id='exchange_1_block'>
+                <div class='exchange_text'>Exchange 1</div>
+                <div class='param'> 
+                    <label for='exchange'>Exchange:</label>
+                    <select name='exchange' id='exchange_1'>
+                        <option value="Coinbase">Coinbase</option>
+                        <option value="Bybit">Bybit</option>
+                        <option value="Gemini">Gemini</option>
+                        <option value="Okx">Okx</option>
+                        <option value="Kraken">Kraken</option>
+                        <option value="None">None</option>
+                    </select>
+                    <!-- <input type='text' name='exchange' id='exchange_1' list='exchange_1_list' value='Gemini'/>
+                    <datalist id='exchange_1_list'>
+                        <option value='Okx'> </option>
+                        <option value='Kraken'></option>
+                        <option value='Gemini'></option>
+                    </datalist> -->
+                </div>
+                <div class='param'>
+                    <label for='ccy_pair'>Currency Pair:</label>
+                    <select name='ccy_pair' id='ccy_pair_1'>
+                        <option value='BTCUSD'>BTCUSD</option>
+                        <option value='ETHUSD'>ETHUSD</option>
+                        <option value='SOLUSDT'>SOLUSDT</option>
+                        <option value='LTCUSDT'>LTCUSDT</option>
+                        <option value='BTCUSDT'>BTCUSDT</option>
+
+                    </select>
+                    <!-- <input type='text' name='ccy_pair' id='ccy_pair_1' list='ccy_pair_1_list' value='BTCUSD'/>
+                    <datalist id='ccy_pair_1_list'>
+                        <option value='BTCUSD'></option>
+                    </datalist> -->
+                </div>
+        </div>
+        <div id='exchange_2_block'>
+            <div class='exchange_text'>Exchange 2</div>
+            <div class='param'>
+                <label for='exchange'>Exchange:</label>
+                <select name='exchange' id='exchange_2'>
+                    <option value="None">None</option>
+                    <option value="Coinbase">Coinbase</option>
+                    <option value="Gemini">Gemini</option>
+                    <option value="Okx">Okx</option>
+                    <option value="Kraken">Kraken</option>
+                </select>
+            </div>
+            <div class='param'>
+                <label for='ccy_pair'>Currency Pair:</label>
+                <select name='ccy_pair' id='ccy_pair_2'>
+                    <option value='None'>None</option>
+                    <option value='ETHUSD'>ETHUSD</option>
+                    <option value='BTCUSDC'>BTCUSDC</option>
+                    <option value='LTCUSD'>LTCUSD</option>
+                    <option value='BTCUSD'>BTCUSD</option>
+                </select>
+            </div>
+        </div>
+
+        <div class='param'>
+            <label for='start'>Start</label>
+            <input
+            type='datetime-local'
+            id='start'
+            class='time_range'
+            value=''
+            min=''
+            max=''
+            step='any' />
+        </div>
+
+        <div class='param'>
+            <label for='end'>End</label>
+            <input
+            type='datetime-local'
+            id='end'
+            class='time_range'
+            value=''
+            min=''
+            max='' 
+            step='any' />
+        </div>
+        <input type='submit' name='submit'  value='Submit' />
+    </form>
+
+</div>
+
+
+{% endblock %}
+
+

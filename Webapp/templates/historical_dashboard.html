@@ -1,0 +1,157 @@
+{% extends 'base.html' %}
+
+{% block head %}
+    <link rel='stylesheet' href='{{url_for('static', filename = 'css/historical_dashboard.css')}}' />
+    <!-- <script type="module" src="{{ url_for('static', filename = 'js/test.js') }}"></script> -->
+    <script type='text/javascript' src="{{ url_for('static', filename = 'js/historical_dashboard.js') }}"></script>
+    <!-- <script type='module' src="{{ url_for('static', filename = 'js/historical_dashboard.js') }}"></script> -->
+
+    <script type="text/javascript">
+        var api_url = "{{ api_url }}";
+    </script>
+{% endblock %}
+
+{% block body %}
+<div class='dashboard'>
+    <div class="title">Historical Orderbook</div>
+    <div class='result'>
+        <div class='plot_dashboard'>
+            <div class='info'>
+                <div class='time_range'>
+                    timestamp range:&nbsp;
+                    <p class='timestamp_start'></p>
+                    &nbsp;to&nbsp;
+                    <p class='timestamp_end'></p>
+                </div>
+                <div class='exchange_name'>
+                </div>
+                <div class='ccy_pair'>
+                </div>
+            </div>
+            
+            <div class='time_series'>
+    
+            </div>
+           
+        </div>
+        <div class='snapshot_pane'>
+            
+            <!-- <div class='snapshot'> 
+                <div class='close_pane'>
+                    <button class='close'>X</button>
+                </div>
+                
+                <div class='exchange_ccy_pair_snapshot_title'>
+                    Bybit BTCUSDT
+                </div>
+
+                <div class='orderbook_pane'>
+                    <div class='orderbook_title'>
+                        Orderbook
+                    </div>
+                    <div class='bid_ask'>
+                        <div class='bid_pane'>
+                            <div class='bid_title'>
+                                Bid
+                            </div>
+                            <div class='bid_price_size'>
+                                <div class='bid_prices'>
+                                    <div class='bid_row bid_price_1'>50990.00</div>
+                                    <div class='bid_row bid_price_2'>50982.00</div>
+                                    <div class='bid_row bid_price_3'>50973.00</div>
+                                    <div class='bid_row bid_price_4'>50964.00</div> 
+                                    <div class='bid_row bid_price_5'>50950.00</div> 
+                                </div>
+                                <div class='bid_sizes'>
+                                    <div class='bid_row bid_size_1'>0.05234</div>
+                                    <div class='bid_row bid_size_2'>0.00002</div>
+                                    <div class='bid_row bid_size_3'>0.00003</div>
+                                    <div class='bid_row bid_size_4'>0.00003</div> 
+                                    <div class='bid_row bid_size_5'>0.00003</div> 
+                                </div>
+                            </div>
+                            
+                        </div>
+                        <div class='ask_pane'>
+                            <div class='ask_title'>
+                                Ask
+                            </div>
+                            <div class='ask_price_size'>
+                                <div class='ask_prices'>
+                                    <div class='ask_row ask_price_1'>50990.00</div>
+                                    <div class='ask_row ask_price_2'>50982.00</div>
+                                    <div class='ask_row ask_price_3'>50973.00</div>
+                                    <div class='ask_row ask_price_4'>50964.00</div> 
+                                    <div class='ask_row ask_price_5'>50950.00</div> 
+                                </div>
+                                <div class='ask_sizes'>
+                                    <div class='ask_row ask_size_1'>0.05234</div>
+                                    <div class='ask_row ask_size_2'>0.00002</div>
+                                    <div class='ask_row ask_size_3'>0.00003</div>
+                                    <div class='ask_row ask_size_4'>0.00003</div> 
+                                    <div class='ask_row ask_size_5'>0.00003</div> 
+                                </div>
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+                <div class='trade_pane'>
+                    <div class='trade_title'>
+                        Trade
+                    </div>
+                    <div class='trade'>
+                        <div class='trade_row trade_price'>
+                            50990.00 
+                        </div>
+                        <div class='trade_row trade_size'>
+                            0.05234
+                        </div>
+                        <div class='trade_row trade_side'>
+                            buy
+                        </div>
+                    </div>
+                </div>
+                <div class='snapshot_navigate'>
+                    <button class='previous'>Previous</button>
+                    <button class='next'>Next</button>
+                </div>
+            </div> -->
+            
+        </div>
+        
+    </div>
+    
+
+    <div class='filter'>
+        <div class="filter_title">Filter </div>
+        <div class='filter_dashboard'>
+            <!-- <div class="filter_block">
+                <div id="filter_item_trade_1"></div>
+                
+                <div class="filter_item">
+                    <label class="filter_label" for="trade_1_qty_less_than">
+                        remove trade 1 with quantity less than
+                    </label>
+                    <input type="text" class="trade_qty_less_than_textbox" id="trade_1_qty_less_than" name="trade_1"/>    
+                </div>
+            </div>
+            <div class="filter_block">
+                <div id="filter_item_trade_2"></div>
+                
+                <div class="filter_item">
+                    <label class="filter_label" for="trade_2_qty_less_than">
+                        remove trade 2 with quantity less than
+                    </label>
+                    <input type="text" class="trade_qty_less_than_textbox" id="trade_2_qty_less_than" name="trade_2"/>    
+                    
+                </div>
+            </div> -->
+        </div>
+    </div>
+    
+
+</div>
+{% endblock %}
+
+

@@ -1,0 +1,357 @@
+body {
+    margin: 0;
+    font-family: sans-serif;
+}
+
+.header {  
+    height: 45px;
+    padding: 5px;
+    border: 1px solid black;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: black;
+}
+.visual_crypto {
+    margin-left: 20px;
+    font-size: 20px;
+    font-weight: 700;
+    color: white;
+}
+.navbar {
+    margin-right: 40px;
+}
+.navbar a {
+    font-size:15px;
+    font-weight: 500;
+    color: white;
+    text-decoration: none;
+    margin-left: 40px;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.navbar a:hover {
+    background-color: #a0a0a0;
+}
+
+.active {
+    background-color: #a0a0a0;
+}
+
+.title {
+    height: 40px;
+    margin-bottom: 10px;
+    font-size: 25px;
+    display: flex;
+    justify-content: center;
+}
+
+.dashboard {
+    width: 1450px;  
+    margin: auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: start;
+    align-items: center;
+    padding: 25px;
+    border: 1px solid green;
+}
+.result {
+    border-radius: 5px;
+    display: flex;
+    justify-content: start;
+}
+.plot_dashboard {
+    border: 1px solid black;
+    border-radius: 5px;
+    padding: 15px;
+    margin-bottom: 10px;
+    width: 1090px;
+    margin-right: 10px;
+}
+.snapshot {
+    width: 280px;
+    height: 311px;
+    border: 1px solid black;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    display: flex;
+    flex-direction: column;
+
+}
+
+
+.close_pane {
+    display: flex;
+    justify-content: end;
+}
+.close {
+    padding: 0px;
+    font-size: 20px;
+    font-weight: bold;
+    width: 25px;
+    border: 0px;
+    background-color: white;
+    margin-top: 1px;
+    margin-right: 1px;
+}
+.close:hover,
+.close:focus {
+  color: #f44336;
+  cursor: pointer;
+}
+.exchange_ccy_pair_snapshot_title {
+    display: flex;
+    justify-content: center;
+    font-size: 18px;
+    margin-bottom: 12px;
+}
+
+.orderbook_pane {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    margin-bottom: 5px;
+
+}
+.orderbook_title {
+    font-size: 16px;
+    display: flex;
+    justify-content: center;
+    margin-bottom: 7px;
+}
+
+.bid_ask {
+    display: flex;
+    justify-content: start;
+    margin-bottom: 5px;
+}
+.bid_pane, .ask_pane {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch; 
+}
+.bid_title, .ask_title {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 5px;
+}
+
+.bid_price_size, .ask_price_size {
+    display: flex;
+    justify-content: start;
+}
+
+.bid_prices, .bid_sizes, .ask_prices, .ask_sizes {
+    flex: 1;
+    font-size: 14px;
+}
+
+.bid_prices, .ask_prices{
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+    padding-left: 7px;
+}
+
+.bid_sizes, .ask_sizes{
+    display: flex;
+    flex-direction: column;
+    align-items: end;
+    padding-right: 7px;
+
+}
+
+.bid_row, .ask_row {
+    margin-bottom: 5px;
+}
+
+.trade_title {
+    font-size: 16px;
+    display: flex;
+    justify-content: center;
+    margin-bottom: 7px;
+}
+
+.trade {
+    display: flex;
+
+}
+
+.trade_row {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    font-size: 14px;
+
+}
+
+.snapshot_navigate {
+    display: flex;
+    justify-content: space-evenly;
+    margin-top: 15px;
+}
+
+.previous, .next {
+    width: 75px;
+    height: 25px;
+    background-color: #e5faf3;
+    border-radius: 5px;
+    border: 1px solid black;
+}
+
+.green_animate {
+    animation: green_change 1.5s ease-in none;
+}
+
+.yellow_animate {
+    animation: yellow_change 1.5s ease-in none;
+}
+
+.red_animate {
+    animation: red_change 1.5s ease-in none;
+}
+  
+@keyframes green_change {
+    /* from {color: #00dc5a;}
+    to {color: black;} */
+    0% {color:#00dc5a;}
+    60% {color:#00dc5a;}
+    70% {color:black;}
+    100%{color:black;}
+
+}
+
+@keyframes yellow_change {
+    0% {color:#FDCD3C;}
+    60% {color:#FDCD3C;}
+    70% {color:black;}
+    100%{color:black;}
+}
+
+@keyframes red_change {
+    0% {color:red;}
+    60% {color:red;}
+    70% {color:black;}
+    100%{color:black;}
+
+}
+
+
+.filter {
+    border: 1px solid black;
+    border-radius: 5px;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items:stretch;
+    width: 950px;
+}
+.exchange_name {
+    height: 35px;  
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    font-size: 18px;
+    padding-left: 20px;
+
+}
+
+.ccy_pair {
+    height: 35px;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    font-size: 18px;
+    padding-left: 20px;
+}
+
+.exchange_name_1, .ccy_pair_1 {
+    color: #2672b4;
+    font-weight: bold;
+}
+.exchange_name_2, .ccy_pair_2    {
+    color: #7f69bb;
+    font-weight: bold;
+}
+
+
+.trade_removal_checkbox{
+    width: 15px;
+    height: 15px;
+}
+
+.filter_title {
+    height: 35px;
+    font-size: 25px;
+    padding-left: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.filter_dashboard {
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+    padding: 10px;
+}
+
+.filter_block{
+    border-radius: 5px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 10px;
+    background-color: #fff0d9;
+    width: 410px;
+    /* margin-right: 20px; */
+}
+
+.filter_item {
+    margin-bottom: 10px;
+    font-size: 18px;
+}
+
+.filter_label{
+    font-size: 18px;
+}
+
+.trade_qty_lt_textbox{
+    /* line-height:18px; */
+    font-size: 18px;
+    width: 100px;
+}
+
+.time_range {
+    height: 35px;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    font-size: 18px;
+    padding-left: 20px;
+}
+
+.timestamp_start {
+    color: #318480;
+}
+.timestamp_end {
+    color: #318480;
+}
+
+.info {
+    border-radius: 5px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    background-color: #e6faea;
+    
+}
+
+.time_series {
+    border-radius: 5px;
+
+}

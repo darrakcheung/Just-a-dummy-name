@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% block head %}
+    <link rel='stylesheet' href="{{url_for('static', filename = 'css/realtime_dashboard.css')}}" />
+    <script type="module" src="{{ url_for('static', filename = 'js/params.js') }}"></script>
+    <script type="module" src="{{ url_for('static', filename = 'js/helper_functions.js') }}"></script>
+    <script type='module' src="{{ url_for('static', filename = 'js/realtime_dashboard.js') }}"></script>
+
+    <script type="text/javascript">
+        var ws_url = "{{ ws_url }}";
+    </script>
+{% endblock %}
+
+{% block body %}
+<div class='dashboard'>
+    <div class="title">Realtime Orderbook</div>
+    <div class='result'>
+
+        <div class='plot_dashboard'>
+            <div class='info'>
+                <div class='exchange_name'>
+                </div>
+                <div class='ccy_pair'>
+                </div>
+            </div>
+            
+            <div class='time_series'>
+    
+            </div>
+            <button class="ws_button ws_close">Close Connection</button>
+        </div>
+        <div class='snapshot_pane'>
+        </div>   
+
+    </div>
+    
+
+</div>
+{% endblock %}
+
+
