@@ -260,11 +260,141 @@ $(document).ready(function () {
                         y:[update_data["ask"]["y"], update_data["bid"]["y"]], 
                         customdata: [update_data["ask"]["customdata"], update_data["bid"]["customdata"]]}, 
                         [ask_trace_idx, bid_trace_idx]);
+
+                    update_data["ask"] = {x: [], y:[], customdata: []};
+                    update_data["bid"] = {x: [], y:[], customdata: []};
                 }
             })
         
 
         };
+
+        $(".time_series")[0].on('plotly_click', function(data){
+            console.log("hello");
+            //do nothing if the chart is still updating
+            if ($(".ws_button").hasClass("ws_close")) return;
+    
+            var pts = '';
+            for(var i=0; i < data.points.length; i++){
+                pts = data.points[i];
+            }
+            // console.log(pts);
+            var x_selected = pts["x"];
+            var y_selected = pts["y"];
+            var [orderbook_idx, trade_idx] = [-1, -1];
+            var temp_arr = pts["data"]["name"].split(" ");
+            var [exchange_selected, ccy_pair_selected, type_selected] = [temp_arr[0], temp_arr[1], temp_arr[2]];
+            var identifier = `${exchange_selected}_${ccy_pair_selected}`;
+            var orderbook_selected = realtime_data[identifier]["orderbook"];
+            var trade_selected = realtime_data[identifier]["trades"];
+            if (type_selected == CHART_TYPE[2]){  // handle for trade plot type
+                var trade_idx = pts["pointIndex"];
+                //find the last orderbook just before the trade snapshot time for initialization
+                var orderbook_idx = orderbook_selected.findLastIndex((item)=> Date.parse(item["timestamp"])<Date.parse(x_selected));
+            }
+            else if (type_selected == CHART_TYPE[0] || type_selected == CHART_TYPE[1]){ // handle for bid or ask plot type
+                var orderbook_idx = pts["pointIndex"];
+                //find the last trade just before the trade snapshot time for initialization
+                var trade_idx = trade_selected.findLastIndex((item)=> Date.parse(item["timestamp"])<Date.parse(x_selected));
+                
+            }
+    
+            var selected_trace = JSON.parse(JSON.stringify(selected_trace_template));
+    
+            selected_trace["name"] = `${exchange_selected} ${ccy_pair_selected} Selected`;
+            selected_trace["x"] = [x_selected];
+            selected_trace["y"] = [y_selected];
+            selected_trace["yaxis"] = pts["data"]["yaxis"];
+    
+            if ($(`#${identifier}_snapshot`).length==0){
+                Plotly.addTraces($(".time_series")[0], selected_trace);
+    
+                initialize_snapshot_html(exchange_selected, ccy_pair_selected, css_options[`${identifier}`]["snapshot"]);
+            } 
+            else {  
+                var idx = $(".time_series")[0].data.findIndex(function(item) {
+                    return item["name"] == selected_trace["name"]
+                });
+    
+                Plotly.update($(".time_series")[0], {x:[[x_selected]], y:[[y_selected]]}, {}, [idx]);
+            }
+    
+            initialize_snapshot_data(identifier, orderbook_selected[orderbook_idx], trade_selected[trade_idx], 
+                                    type_selected, CHART_TYPE, animate_cls_to_selectors);
+    
+            $(`#${identifier}_snapshot`).find('.close').off("click").on("click", function() {
+                $(`#${identifier}_snapshot`).remove();
+    
+                var idx = $(".time_series")[0].data.findIndex(function(item) {
+                    return item["name"] == selected_trace["name"]
+                });
+    
+                Plotly.deleteTraces($(".time_series")[0], [idx]);
+            });
+    
+            $(`#${identifier}_snapshot_previous`).off("click").on("click", function(){
+                var next_orderbook_idx = orderbook_idx-1;
+                var next_trade_idx = trade_idx-1;
+    
+                if (next_orderbook_idx > 0 && 
+                    next_trade_idx > 0){
+                        if (orderbook_selected[next_orderbook_idx]["timestamp"] > trade_selected[next_trade_idx]["timestamp"]){
+                            orderbook_idx = next_orderbook_idx;
+                            update_orderbook_snapshot(identifier, orderbook_selected[orderbook_idx]);
+                            update_selected_trace(orderbook_selected[orderbook_idx]["timestamp"], orderbook_selected[orderbook_idx]["ask_prices"][0], selected_trace);
+                        }
+                        else {
+                            trade_idx = next_trade_idx;
+                            update_trade_snapshot(identifier, trade_selected[trade_idx]);
+                            update_selected_trace(trade_selected[trade_idx]["timestamp"], trade_selected[trade_idx]["price"], selected_trace);
+    
+                        }
+                }
+                else if (next_orderbook_idx > 0){
+                    orderbook_idx = next_orderbook_idx;
+                    update_orderbook_snapshot(identifier, orderbook_selected[orderbook_idx]);
+                    update_selected_trace(orderbook_selected[orderbook_idx]["timestamp"], orderbook_selected[orderbook_idx]["ask_prices"][0], selected_trace);
+                }
+                else if (next_trade_idx > 0){
+                    trade_idx = next_trade_idx;
+                    update_trade_snapshot(identifier, trade_selected[trade_idx]);
+                    update_selected_trace(trade_selected[trade_idx]["timestamp"], trade_selected[trade_idx]["price"], selected_trace);
+    
+                    
+                }
+            });
+    
+            $(`#${identifier}_snapshot_next`).off("click").on("click", function(){
+                var next_orderbook_idx = orderbook_idx+1;
+                var next_trade_idx = trade_idx+1;
+                if (next_orderbook_idx < orderbook_selected.length && 
+                    next_trade_idx < trade_selected.length){
+                        if (orderbook_selected[next_orderbook_idx]["timestamp"] < trade_selected[next_trade_idx]["timestamp"]){
+                            orderbook_idx = next_orderbook_idx;
+                            update_orderbook_snapshot(identifier, orderbook_selected[orderbook_idx]);
+                            update_selected_trace(orderbook_selected[orderbook_idx]["timestamp"], orderbook_selected[orderbook_idx]["ask_prices"][0], selected_trace);
+                        }
+                        else {
+                            trade_idx = next_trade_idx;
+                            update_trade_snapshot(identifier, trade_selected[trade_idx]);
+                            update_selected_trace(trade_selected[trade_idx]["timestamp"], trade_selected[trade_idx]["price"], selected_trace);
+    
+                        }
+                }
+                else if (next_orderbook_idx < orderbook_selected.length){
+                    orderbook_idx = next_orderbook_idx;
+                    update_orderbook_snapshot(identifier, orderbook_selected[orderbook_idx]);
+                    update_selected_trace(orderbook_selected[orderbook_idx]["timestamp"], orderbook_selected[orderbook_idx]["ask_prices"][0], selected_trace);
+                }
+                else if (next_trade_idx < trade_selected.length){
+                    trade_idx = next_trade_idx;
+                    update_trade_snapshot(identifier, trade_selected[trade_idx]);
+                    update_selected_trace(trade_selected[trade_idx]["timestamp"], trade_selected[trade_idx]["price"], selected_trace);
+                }
+            });
+        });
+    
+
     }
     create_websocket_connection();
 
@@ -272,16 +402,17 @@ $(document).ready(function () {
     $(".ws_button").on("click", function(){
         if ($(".ws_button").hasClass("ws_close")){
             ws.close();
-            
+
             //post action
             $(".ws_button").removeClass("ws_close");
             $(".ws_button").html("Reopen Connection");
             $(".ws_button").addClass("ws_reopen");
         }
         else if ($(".ws_button").hasClass("ws_reopen")){
-            for (let i=0; i<chart_name_to_idx.length;i++){
-                Plotly.update($(".time_series")[0], {x:[], y:[], customdata: []}, {}, [i]);
-            }
+            // for (let i=0; i<chart_name_to_idx.length;i++){
+            //     Plotly.update($(".time_series")[0], {x:[], y:[], customdata: []}, {}, [i]);
+            // }
+
             create_websocket_connection(ws);
 
             $(".ws_button").removeClass("ws_reopen");
@@ -290,134 +421,8 @@ $(document).ready(function () {
         }
     });
 
-    $(".time_series")[0].on('plotly_click', function(data){
-        //do nothing if the chart is still updating
-        if ($(".ws_button").hasClass("ws_close")) return;
-
-        var pts = '';
-        for(var i=0; i < data.points.length; i++){
-            pts = data.points[i];
-        }
-        // console.log(pts);
-        var x_selected = pts["x"];
-        var y_selected = pts["y"];
-        var [orderbook_idx, trade_idx] = [-1, -1];
-        var temp_arr = pts["data"]["name"].split(" ");
-        var [exchange_selected, ccy_pair_selected, type_selected] = [temp_arr[0], temp_arr[1], temp_arr[2]];
-        var identifier = `${exchange_selected}_${ccy_pair_selected}`;
-        var orderbook_selected = realtime_data[identifier]["orderbook"];
-        var trade_selected = realtime_data[identifier]["trades"];
-        if (type_selected == CHART_TYPE[2]){  // handle for trade plot type
-            var trade_idx = pts["pointIndex"];
-            //find the last orderbook just before the trade snapshot time for initialization
-            var orderbook_idx = orderbook_selected.findLastIndex((item)=> Date.parse(item["timestamp"])<Date.parse(x_selected));
-        }
-        else if (type_selected == CHART_TYPE[0] || type_selected == CHART_TYPE[1]){ // handle for bid or ask plot type
-            var orderbook_idx = pts["pointIndex"];
-            //find the last trade just before the trade snapshot time for initialization
-            var trade_idx = trade_selected.findLastIndex((item)=> Date.parse(item["timestamp"])<Date.parse(x_selected));
-            
-        }
-
-        // console.log(orderbook_idx);
-        // console.log(trade_idx);
-        // console.log(orderbook_selected[orderbook_idx]);
-        // console.log(trade_selected[trade_idx]);
-
-        var selected_trace = JSON.parse(JSON.stringify(selected_trace_template));
-
-        selected_trace["name"] = `${exchange_selected} ${ccy_pair_selected} Selected`;
-        selected_trace["x"] = [x_selected];
-        selected_trace["y"] = [y_selected];
-        selected_trace["yaxis"] = pts["data"]["yaxis"];
-
-        if ($(`#${identifier}_snapshot`).length==0){
-            Plotly.addTraces($(".time_series")[0], selected_trace);
-
-            initialize_snapshot_html(exchange_selected, ccy_pair_selected, css_options[`${identifier}`]["snapshot"]);
-        } 
-        else {  
-            var idx = $(".time_series")[0].data.findIndex(function(item) {
-                return item["name"] == selected_trace["name"]
-            });
-
-            Plotly.update($(".time_series")[0], {x:[[x_selected]], y:[[y_selected]]}, {}, [idx]);
-        }
-
-        initialize_snapshot_data(identifier, orderbook_selected[orderbook_idx], trade_selected[trade_idx], 
-                                type_selected, CHART_TYPE, animate_cls_to_selectors);
-
-        $(`#${identifier}_snapshot`).find('.close').off("click").on("click", function() {
-            $(`#${identifier}_snapshot`).remove();
-
-            var idx = $(".time_series")[0].data.findIndex(function(item) {
-                return item["name"] == selected_trace["name"]
-            });
-
-            Plotly.deleteTraces($(".time_series")[0], [idx]);
-        });
-
-        $(`#${identifier}_snapshot_previous`).off("click").on("click", function(){
-            var next_orderbook_idx = orderbook_idx-1;
-            var next_trade_idx = trade_idx-1;
-
-            if (next_orderbook_idx > 0 && 
-                next_trade_idx > 0){
-                    if (orderbook_selected[next_orderbook_idx]["timestamp"] > trade_selected[next_trade_idx]["timestamp"]){
-                        orderbook_idx = next_orderbook_idx;
-                        update_orderbook_snapshot(identifier, orderbook_selected[orderbook_idx]);
-                        update_selected_trace(orderbook_selected[orderbook_idx]["timestamp"], orderbook_selected[orderbook_idx]["ask_prices"][0], selected_trace);
-                    }
-                    else {
-                        trade_idx = next_trade_idx;
-                        update_trade_snapshot(identifier, trade_selected[trade_idx]);
-                        update_selected_trace(trade_selected[trade_idx]["timestamp"], trade_selected[trade_idx]["price"], selected_trace);
-
-                    }
-            }
-            else if (next_orderbook_idx > 0){
-                orderbook_idx = next_orderbook_idx;
-                update_orderbook_snapshot(identifier, orderbook_selected[orderbook_idx]);
-                update_selected_trace(orderbook_selected[orderbook_idx]["timestamp"], orderbook_selected[orderbook_idx]["ask_prices"][0], selected_trace);
-            }
-            else if (next_trade_idx > 0){
-                trade_idx = next_trade_idx;
-                update_trade_snapshot(identifier, trade_selected[trade_idx]);
-                update_selected_trace(trade_selected[trade_idx]["timestamp"], trade_selected[trade_idx]["price"], selected_trace);
-
-                
-            }
-        });
-
-        $(`#${identifier}_snapshot_next`).off("click").on("click", function(){
-            var next_orderbook_idx = orderbook_idx+1;
-            var next_trade_idx = trade_idx+1;
-            if (next_orderbook_idx < orderbook_selected.length && 
-                next_trade_idx < trade_selected.length){
-                    if (orderbook_selected[next_orderbook_idx]["timestamp"] < trade_selected[next_trade_idx]["timestamp"]){
-                        orderbook_idx = next_orderbook_idx;
-                        update_orderbook_snapshot(identifier, orderbook_selected[orderbook_idx]);
-                        update_selected_trace(orderbook_selected[orderbook_idx]["timestamp"], orderbook_selected[orderbook_idx]["ask_prices"][0], selected_trace);
-                    }
-                    else {
-                        trade_idx = next_trade_idx;
-                        update_trade_snapshot(identifier, trade_selected[trade_idx]);
-                        update_selected_trace(trade_selected[trade_idx]["timestamp"], trade_selected[trade_idx]["price"], selected_trace);
-
-                    }
-            }
-            else if (next_orderbook_idx < orderbook_selected.length){
-                orderbook_idx = next_orderbook_idx;
-                update_orderbook_snapshot(identifier, orderbook_selected[orderbook_idx]);
-                update_selected_trace(orderbook_selected[orderbook_idx]["timestamp"], orderbook_selected[orderbook_idx]["ask_prices"][0], selected_trace);
-            }
-            else if (next_trade_idx < trade_selected.length){
-                trade_idx = next_trade_idx;
-                update_trade_snapshot(identifier, trade_selected[trade_idx]);
-                update_selected_trace(trade_selected[trade_idx]["timestamp"], trade_selected[trade_idx]["price"], selected_trace);
-            }
-        });
-    });
+   
+    
 });
 
 
