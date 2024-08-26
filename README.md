@@ -34,5 +34,6 @@ which you should see the following
  * Running on http://127.0.0.1:3001 (CTRL + C to quit)
 [2024-08-25 23:18:49 -0400] [88620] [INFO] Running on http://127.0.0.1:3001 (CTRL + C to quit)
 ```
+So you can see the webapp in http://127.0.0.1:3000
 
 
