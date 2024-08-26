@@ -13,6 +13,7 @@ pip install -r Webapp/requirement.txt
 ```
 python API/orderbook_snapshot.py  //it is still in debug mode
 ```
+which you should see the following
 ```console
  * Serving Quart app 'orderbook_snapshot'
  * Debug mode: True
@@ -24,6 +25,14 @@ python API/orderbook_snapshot.py  //it is still in debug mode
 ### 3. run the web server
 ```
 python Webapp/app.py  //it is still in debug mode
+```
+which you should see the following
+```console
+ * Serving Quart app 'app'
+ * Debug mode: True
+ * Please use an ASGI server (e.g. Hypercorn) directly in production
+ * Running on http://127.0.0.1:3001 (CTRL + C to quit)
+[2024-08-25 23:18:49 -0400] [88620] [INFO] Running on http://127.0.0.1:3001 (CTRL + C to quit)
 ```
 
 
