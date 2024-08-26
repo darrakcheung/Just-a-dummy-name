@@ -1,15 +1,13 @@
 from .exchange import Exchange
 import websockets
 import json
-from sortedcontainers import SortedDict
 from datetime import datetime, timezone
-# from orderbook_data.exchange.orderbook import Orderbook
-# from orderbook_data.exchange.trade import Trade
 from .orderbook import Orderbook
 from .trade import Trade
 import pytz
-from zlib import crc32
 from copy import deepcopy
+from dataobject import DecodedMsg
+from typing import override
 
 class Gemini(Exchange):
     name = "Gemini"
@@ -25,33 +23,31 @@ class Gemini(Exchange):
         "BTCUSDT":"BTCUSDT",
         "LTCUSD":"LTCUSD"
     }
-    
-    subscription_request = None
 
     def __init__(self):
         self.orderbook = Orderbook()
+        self.subscription_request = None
 
+    @override
     # the subscribe is in the ws url connection, no need to send any request
     async def subscribe_request(self, websocket: websockets, channel, ccy_pair):
         return
 
-
+    @override
     def decode(self, msg: str, ccy_pair: str)-> dict:
         msg_obj = json.loads(msg)
+        if "events" not in msg_obj:
+            decoded_msg = DecodedMsg("error", {"err_msg": "no suitable method to decode the msg"})
+            return decoded_msg.to_dict()  
         # check the type of the first_event to determine what function to call
         first_event = msg_obj["events"][0]
-        if "reason" in first_event and first_event["reason"]=="initial":
-            data = self.get_first_orderbook_snapshot(msg_obj["events"], ccy_pair)
-        elif first_event["type"]=="change":
-            data = self.update_orderbook(msg_obj, ccy_pair)
-        elif first_event["type"]=="trade":
-            data = self.decode_trades_message(msg_obj, ccy_pair)
+        if "type" in first_event and first_event["type"]=="change":
+            return self.decode_orderbook_message(msg_obj, ccy_pair)
+        elif "type" in first_event and first_event["type"]=="trade":
+            return self.decode_trades_message(msg_obj, ccy_pair)
         else:
-             return {
-                    "msg_type": "error",
-                    "msg": "no suitable method to decode the msg"
-                }
-        return data
+            decoded_msg = DecodedMsg("error", {"err_msg": "no suitable method to decode the msg"})
+            return decoded_msg.to_dict()   
 
     def get_first_orderbook_snapshot(self, events:list, ccy_pair: str)-> dict:
         self.orderbook.ccy_pair = ccy_pair
@@ -68,12 +64,8 @@ class Gemini(Exchange):
         print(orderbook.bids[:20])
         print(orderbook.asks[:20])
 
-        return {
-            "msg_type": "book",
-            "msg": {
-                "data": orderbook
-            }
-        }
+        decoded_msg = DecodedMsg("book", {"data": orderbook})
+        return decoded_msg.to_dict()  
 
     def update_orderbook(self, snapshot: dict, ccy_pair: str)-> dict:
         self.orderbook.ccy_pair = ccy_pair
@@ -101,15 +93,18 @@ class Gemini(Exchange):
 
         orderbook = deepcopy(self.orderbook)
 
-        return {
-            "msg_type": "book",
-            "msg": {
-                "data": orderbook
-            }
-        }
+        decoded_msg = DecodedMsg("book", {"data": orderbook})
+        return decoded_msg.to_dict()  
 
-        
+    @override
+    def decode_orderbook_message(self, msg_obj, ccy_pair):
+        first_event = msg_obj["events"][0]
+        if "reason" in first_event and first_event["reason"]=="initial":
+            return self.get_first_orderbook_snapshot(msg_obj["events"], ccy_pair)
+        elif first_event["type"]=="change":
+            return self.update_orderbook(msg_obj, ccy_pair)
 
+    @override
     def decode_trades_message(self, snapshot: dict, ccy_pair: str)-> dict:
         self.orderbook.ccy_pair = ccy_pair
         timestamp = datetime.fromtimestamp(snapshot["timestampms"] / 1000.0, tz=pytz.utc)
@@ -120,17 +115,11 @@ class Gemini(Exchange):
                         float(event["amount"]), \
                         event["makerSide"].lower(), \
                         "market")
-        return {
-            "msg_type": "trade",
-            "msg": {
-                "data": [trade]
-            }
-        }
-
-
-    def decode_orderbook_message(self, msg):
-        pass
+        decoded_msg = DecodedMsg("trade", {"data": [trade]})
+        return decoded_msg.to_dict()  
         
+
+    @override  
     def get_checksum(self, orderbook):
         return super().get_checksum(orderbook)
   

@@ -3,12 +3,12 @@ import websockets
 import json
 from sortedcontainers import SortedDict
 from datetime import datetime
-# from orderbook_data.exchange.orderbook import Orderbook
-# from orderbook_data.exchange.trade import Trade
 from .orderbook import Orderbook
 from .trade import Trade
 from copy import deepcopy
 import pytz
+from dataobject import DecodedMsg
+from typing import override
 
 class Okx(Exchange):
     name = "Okx"
@@ -31,34 +31,32 @@ class Okx(Exchange):
         "BTC-USDC": "BTCUSDC"
 
     }
-    
-    subscription_request = {
-        "orderbook": {
-            "op": "subscribe",
-            "args": [
-                {
-                "channel": "books5",
-                "instId": None
-                }
-            ]
-        },
-        "trades": {
-            "op": "subscribe",
-            "args": [
-                {
-                "channel": "trades",
-                "instId": None
-                }
-            ]
-        }
-    }
 
     def __init__(self):
         self.orderbook = Orderbook()
-        self.subscribe_request = deepcopy(Okx.subscribe_request)
+        self.subscription_request = {
+            "orderbook": {
+                "op": "subscribe",
+                "args": [
+                    {
+                    "channel": "books5",
+                    "instId": None
+                    }
+                ]
+            },
+            "trades": {
+                "op": "subscribe",
+                "args": [
+                    {
+                    "channel": "trades",
+                    "instId": None
+                    }
+                ]
+            }
+        }
 
+    @override
     async def subscribe_request(self, websocket: websockets, channel, ccy_pair):
-
         if channel not in self.subscription_request:
             raise Exception(f"Channel {channel} is not implemented in {self.name} exchange")
 
@@ -69,6 +67,7 @@ class Okx(Exchange):
         request["args"][0]["instId"] = Okx.to_exchange_ccy_pairs[ccy_pair]
         await websocket.send(json.dumps(request))
 
+    @override
     def decode(self, msg: str, ccy_pair: str)-> dict:
         msg_obj = json.loads(msg)
         
@@ -80,11 +79,10 @@ class Okx(Exchange):
             elif msg_obj["arg"]["channel"]=="trades":
                 return self.decode_trades_message(msg_obj["data"], ccy_pair)
             else:
-                return {
-                    "msg_type": "error",
-                    "msg": "no suitable method to decode the msg"
-                }
+                decoded_msg = DecodedMsg("error", {"err_msg": "no suitable method to decode the msg"})
+                return decoded_msg.to_dict()  
 
+    @override
     def decode_orderbook_message(self, snapshot: dict, ccy_pair: str)-> dict:
         bids = snapshot["bids"]
         asks = snapshot["asks"]
@@ -101,14 +99,10 @@ class Okx(Exchange):
             orderbook.asks.add(price)
             orderbook.ask_to_qty[price] = quantity
         
-        return {
-            "msg_type": "book",
-            "msg": {
-                "data": orderbook
-            }
-        }
+        decoded_msg = DecodedMsg("book", {"data": orderbook})
+        return decoded_msg.to_dict() 
 
-
+    @override
     def decode_trades_message(self, trades: list, ccy_pair: str)-> dict:
         temp = []
         for trade in trades:
@@ -118,13 +112,9 @@ class Okx(Exchange):
                               round(float(trade["sz"]),7), \
                               trade["side"].lower(), \
                               None))
-                
-        return {
-            "msg_type": "trade",
-            "msg": {
-                "data": temp
-            }
-        }
+
+        decoded_msg = DecodedMsg("trade", {"data": temp})
+        return decoded_msg.to_dict()     
 
     def decode_subscription_message(self, msg_obj: dict):
         try:

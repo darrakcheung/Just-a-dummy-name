@@ -3,8 +3,6 @@ import websockets
 import json
 from sortedcontainers import SortedDict
 from datetime import datetime, timezone
-# from orderbook_data.exchange.orderbook import Orderbook
-# from orderbook_data.exchange.trade import Trade
 from .orderbook import Orderbook
 from .trade import Trade
 from copy import deepcopy
@@ -17,43 +15,46 @@ class Kraken(Exchange):
 
     to_exchange_ccy_pairs = {
         "BTCUSDT":"BTC/USDT",
-        "BTCUSD": "BTC/USD"
+        "BTCUSD": "BTC/USD",
+        "ETHUSDT": "ETH/USDT",
+        "ETHUSD": "ETH/USDT"
+
     }
     from_exchange_ccy_pairs = {
         "BTC/USDT": "BTCUSDT",
-        "BTC/USD": "BTCUSD"
+        "BTC/USD": "BTCUSD",
+        "ETH/USDT": "ETHUSD",
+        "ETH/USD": "ETHUSD"
     }
-    
-    subscription_request = {
-        "ticker": {
-            "method": "subscribe",
-            "params": {
-                "channel": "ticker",
-                "symbol": [],
-                "snapshot": False 
-            }
-        },
-        "orderbook": {
-            "method": "subscribe",
-            "params": {
-                "channel": "book",
-                "symbol": []
-            }
-        },
-        "trades": {
-            "method": "subscribe",
-            "params": {
-                "channel": "trade",
-                "symbol": [],
-                "snapshot": False #return a snapshot of most recent 50 trades if true
-            }
-        }
-    }
+
 
     def __init__(self):
         self.orderbook = Orderbook()
-        self.subscribe_request = deepcopy(Kraken.subscribe_request)
-
+        self.subscription_request = {
+            "ticker": {
+                "method": "subscribe",
+                "params": {
+                    "channel": "ticker",
+                    "symbol": [],
+                    "snapshot": False 
+                }
+            },
+            "orderbook": {
+                "method": "subscribe",
+                "params": {
+                    "channel": "book",
+                    "symbol": []
+                }
+            },
+            "trades": {
+                "method": "subscribe",
+                "params": {
+                    "channel": "trade",
+                    "symbol": [],
+                    "snapshot": False #return a snapshot of most recent 50 trades if true
+                }
+            }
+        }
 
     async def subscribe_request(self, websocket: websockets, channel, ccy_pair):
         if channel not in self.subscription_request:

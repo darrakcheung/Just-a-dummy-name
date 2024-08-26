@@ -3,12 +3,12 @@ import websockets
 import json
 from sortedcontainers import SortedDict
 from datetime import datetime
-# from orderbook_data.exchange.orderbook import Orderbook
-# from orderbook_data.exchange.trade import Trade
 from .orderbook import Orderbook
 from .trade import Trade
 import pytz
 from copy import deepcopy
+from dataobject import DecodedMsg
+from typing import override
 
 class Bybit(Exchange):
     name = "Bybit"
@@ -28,28 +28,27 @@ class Bybit(Exchange):
         "SOLUSDT": "SOLUSD",
         "BCHUSDT": "BCHUSD",
     }
-    
-    subscription_request = {
-        "orderbook": {
-            "req_id": "test", 
-            "op": "subscribe",
-            "args": [
-                # "orderbook.50.BTCUSD"
-            ]
-        },
-        "trades": {
-            "req_id": "test", 
-            "op": "subscribe",
-            "args": [
-                # "publicTrade.BTCUSD"
-            ]
-        },
-    }
 
     def __init__(self):
         self.orderbook = Orderbook()
-        self.subscribe_request = deepcopy(Bybit.subscribe_request)
+        self.subscription_request = {
+            "orderbook": {
+                "req_id": "test", 
+                "op": "subscribe",
+                "args": [
+                    # "orderbook.50.BTCUSD"
+                ]
+            },
+            "trades": {
+                "req_id": "test", 
+                "op": "subscribe",
+                "args": [
+                    # "publicTrade.BTCUSD"
+                ]
+            },
+        }
 
+    @override
     async def subscribe_request(self, websocket: websockets, channel, ccy_pair):
 
         if channel not in self.subscription_request:
@@ -75,22 +74,15 @@ class Bybit(Exchange):
         elif "topic" in msg_obj:
             channel = msg_obj["topic"].split(".")[0]
             if channel=="orderbook":
-                if msg_obj["type"]=="snapshot":
-                    return self.get_first_orderbook_snapshot(msg_obj, ccy_pair)
-                elif msg_obj["type"]=="delta":
-                    return self.update_orderbook(msg_obj, ccy_pair)
+                return self.decode_orderbook_message(msg_obj, ccy_pair)
             elif channel=="publicTrade":
                 return self.decode_trades_message(msg_obj, ccy_pair)
             else:
-                return {
-                    "msg_type": "error",
-                    "msg": "no suitable method to decode the msg"
-                }
-            
-        return {
-            "msg_type": "error",
-            "msg": "no suitable method to decode the msg"
-        }
+                decoded_msg = DecodedMsg("error", {"err_msg": "no suitable method to decode the msg"})
+                return decoded_msg.to_dict()  
+
+        decoded_msg = DecodedMsg("error", {"err_msg": "no suitable method to decode the msg"})
+        return decoded_msg.to_dict()      
     
     def get_first_orderbook_snapshot(self, msg_obj:dict, ccy_pair: str)-> dict:
         self.orderbook.ccy_pair = ccy_pair
@@ -106,13 +98,9 @@ class Bybit(Exchange):
             self.orderbook.ask_to_qty[ask] = ask_size
         orderbook = deepcopy(self.orderbook)
 
-        return {
-            "msg_type": "book",
-            "msg": {
-                "data": orderbook
-            }
-        }
-
+        decoded_msg = DecodedMsg("book", {"data": orderbook})
+        return decoded_msg.to_dict()  
+    
     def update_orderbook(self, msg_obj: dict, ccy_pair: str)-> dict:
         self.orderbook.ccy_pair = ccy_pair
         self.orderbook.timestamp = datetime.fromtimestamp(msg_obj["ts"]/1000, tz=pytz.utc)
@@ -139,16 +127,17 @@ class Bybit(Exchange):
 
         orderbook = deepcopy(self.orderbook)
 
-        return {
-            "msg_type": "book",
-            "msg": {
-                "data": orderbook
-            }
-        }
+        decoded_msg = DecodedMsg("book", {"data": orderbook})
+        return decoded_msg.to_dict()  
     
-    def decode_orderbook_message(self, msg):
-        pass
+    @override
+    def decode_orderbook_message(self, msg_obj: dict, ccy_pair: str):
+        if msg_obj["type"]=="snapshot":
+            return self.get_first_orderbook_snapshot(msg_obj, ccy_pair)
+        elif msg_obj["type"]=="delta":
+            return self.update_orderbook(msg_obj, ccy_pair)
 
+    @override
     def decode_trades_message(self, snapshot: dict, ccy_pair: str):
         self.orderbook.ccy_pair = ccy_pair
         # timestamp = datetime.fromtimestamp(snapshot["ts"] / 1000.0, tz=pytz.utc)
@@ -162,12 +151,8 @@ class Bybit(Exchange):
                         event["S"].lower(), \
                         "market"))
 
-        return {
-            "msg_type": "trade",
-            "msg": {
-                "data": trades
-            }
-        }
+        decoded_msg = DecodedMsg("trade", {"data": trades})
+        return decoded_msg.to_dict()  
         
     def get_checksum(self, orderbook):
         pass
