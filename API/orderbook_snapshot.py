@@ -1,6 +1,5 @@
 from quart import g, Quart, websocket, request, jsonify
 from quart_cors import cors
-import asyncpg
 import websockets
 from websockets import ConnectionClosed
 from exchange_factory import ExchangeFactory
@@ -184,32 +183,27 @@ app = cors(app, allow_origin="*")
 
 async def ws_request(exchange: Exchange, channel, ccy_pair):
     print(exchange.name, channel, ccy_pair)
-
-    if exchange.name=="Gemini":
-        ws_url = exchange.ws_url+exchange.to_exchange_ccy_pairs[ccy_pair]
-    else:
-        ws_url = exchange.ws_url
-
-    async for ws in websockets.connect(ws_url, ping_interval=None, max_size=300000000):
+    async for ws in exchange.connect_ws(channel, ccy_pair):
             await exchange.subscribe_request(ws, channel, ccy_pair)
             while True:
                 try:
+                    # send a message to the exchange to keep the connection open
+                    _ = await exchange.check_connection(ws)
                     response_msg = await ws.recv()
                     msg_obj = exchange.decode(response_msg, ccy_pair)
 
                     if msg_obj["msg_type"] == "book":
-                        # orderbook = msg_obj["msg"]["data"]
-                        # print(orderbook)
                         msg_obj["exchange"] = exchange.name
                         msg_obj["ccy_pair"] = ccy_pair
                         data = msg_obj['msg']['data'].toDictString()
-                        # print(data)
+                        
                         return_str = f'{{' \
                             f'"msg_type": "book",' \
                             f'"exchange": "{exchange.name}",' \
                             f'"ccy_pair": "{ccy_pair}",' \
                             f'"data": {data}' \
                             f'}}'
+                    
                         await websocket.send(return_str)
 
                     elif msg_obj["msg_type"] == "trade":
@@ -241,7 +235,7 @@ async def ws():
         for request in requests:
             ccy_pair = request["ccy_pair"]
             exchange_cls = factory.create(request["exchange"])
-            for channel in ["orderbook", "trades"]:
+            for channel in exchange_cls.subscription_request.keys():
                 tasks.append(ws_request(exchange_cls, channel, ccy_pair))
         # await websocket.send(f"Server received:")
         await asyncio.gather(*tasks)
